@@ -1,6 +1,5 @@
 package cn.labzen.meta.component
 
-import cn.labzen.meta.LabzenMeta
 import cn.labzen.meta.component.bean.Information
 import java.io.File
 import java.net.JarURLConnection
@@ -8,18 +7,16 @@ import java.security.CodeSource
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 
-internal object Manifest {
+internal class Manifest(private val componentClass: LabzenComponent) {
 
-  private val UNIDENTIFIED_INFORMATION = Information("", "", "")
-
-  fun determine(meta: LabzenMeta): Information {
-    val cls = meta::class.java
+  fun determine(): Information {
+    val cls = componentClass::class.java
     val codeSource: CodeSource? = cls.protectionDomain.codeSource
 
     return (codeSource?.let {
       fromCodeSource(it)
     } ?: fromPackage(cls.`package`)).apply {
-      description = meta.description()
+      description = componentClass.description()
     }
   }
 
@@ -51,4 +48,7 @@ internal object Manifest {
   private fun fromPackage(pck: Package): Information =
     Information(pck.implementationTitle, pck.implementationVendor, pck.implementationVersion)
 
+  companion object {
+    private val UNIDENTIFIED_INFORMATION = Information("", "", "")
+  }
 }

@@ -1,5 +1,5 @@
 package cn.labzen.meta.component.bean
 
-import cn.labzen.meta.LabzenMeta
+import cn.labzen.meta.component.LabzenComponent
 
-data class Meta(val clazz: Class<LabzenMeta>, val instance: LabzenMeta)
+data class Meta(val clazz: Class<LabzenComponent>, val instance: LabzenComponent)
