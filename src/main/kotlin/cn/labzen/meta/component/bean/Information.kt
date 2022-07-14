@@ -1,4 +1,4 @@
-package cn.labzen.meta.bean
+package cn.labzen.meta.component.bean
 
 data class Information(val title: String, val vendor: String, val version: String) {
 

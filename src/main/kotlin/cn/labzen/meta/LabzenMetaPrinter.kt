@@ -1,23 +1,15 @@
 package cn.labzen.meta
 
-import cn.labzen.meta.bean.Component
-import cn.labzen.meta.bean.Information
+import cn.labzen.meta.component.bean.Component
+import cn.labzen.meta.component.bean.Information
 
-internal object LabzenInformationPrinter {
-
-  // private val logger = try {
-  //   Class.forName("cn.labzen.logger.Loggers")
-  //   logger { }
-  // } catch (e: ClassNotFoundException) {
-  //   null
-  // } ?: try {
-  //   Class.forName("org.slf4j.LoggerFactory")
-  //   LoggerFactory.getLogger(LabzenInformationPrinter::class.java)
-  // } catch (e: ClassNotFoundException) {
-  //   null
-  // }
+internal object LabzenMetaPrinter {
 
   fun print() {
+    printLogoAndComponents()
+  }
+
+  private fun printLogoAndComponents() {
     val e = "\u001B[0m"
     val k = "\u001B[38;5;214m"
     val h = "\u001B[38;5;179m"
@@ -57,5 +49,4 @@ internal object LabzenInformationPrinter {
 
   private fun collect(): List<Information> =
     Labzens.components.values.map(Component::information)
-
 }

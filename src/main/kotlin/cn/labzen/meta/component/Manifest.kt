@@ -1,13 +1,14 @@
-package cn.labzen.meta
+package cn.labzen.meta.component
 
-import cn.labzen.meta.bean.Information
+import cn.labzen.meta.LabzenMeta
+import cn.labzen.meta.component.bean.Information
 import java.io.File
 import java.net.JarURLConnection
 import java.security.CodeSource
 import java.util.jar.Attributes
 import java.util.jar.JarFile
 
-internal object LabzenManifest {
+internal object Manifest {
 
   private val UNIDENTIFIED_INFORMATION = Information("", "", "")
 

@@ -1,7 +1,8 @@
 package cn.labzen.meta
 
-import cn.labzen.meta.bean.Component
-import cn.labzen.meta.bean.Meta
+import cn.labzen.meta.component.bean.Component
+import cn.labzen.meta.component.Manifest
+import cn.labzen.meta.component.bean.Meta
 import java.util.*
 
 object Labzens {
@@ -12,7 +13,7 @@ object Labzens {
     val serviceLoader = ServiceLoader.load(LabzenMeta::class.java)
 
     components = serviceLoader.map {
-      val information = LabzenManifest.determine(it)
+      val information = Manifest.determine(it)
       val meta = Meta(it.javaClass, it)
       Component(information, meta)
     }.associateBy {

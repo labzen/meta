@@ -1,4 +1,4 @@
-package cn.labzen.meta.bean
+package cn.labzen.meta.component.bean
 
 import cn.labzen.meta.LabzenMeta
 
