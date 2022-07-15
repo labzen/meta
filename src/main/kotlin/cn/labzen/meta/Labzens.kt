@@ -1,11 +1,13 @@
 package cn.labzen.meta
 
 import cn.labzen.meta.component.bean.Component
+import cn.labzen.meta.system.bean.SystemInformation
 import java.util.*
 
 object Labzens {
 
   private val components = mutableMapOf<String, Component>()
+  private val systemInformationList = mutableListOf<SystemInformation>()
 
   internal fun addComponent(component: Component) {
     components[component.information.title] = component
@@ -16,4 +18,11 @@ object Labzens {
 
   fun components() =
     components.toMap()
+
+  internal fun addSystemInformation(systemInformation: SystemInformation) {
+    systemInformationList.add(systemInformation)
+  }
+
+  fun allSystemInformation() =
+    systemInformationList.toList()
 }
