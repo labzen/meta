@@ -1,7 +1,7 @@
 package cn.labzen.meta
 
+import cn.labzen.meta.component.ComponentRecorder
 import cn.labzen.meta.component.bean.Component
-import cn.labzen.meta.component.bean.Information
 import cn.labzen.meta.system.SystemInformationCollector
 import org.slf4j.LoggerFactory
 
@@ -36,7 +36,7 @@ internal object LabzenMetaPrinter {
     println("$k█$e $t Using Labzen Components$e")
     println("$k█$e")
 
-    val infos = collect()
+    val infos = Labzens.components().values.map(Component::information)
     if (infos.isEmpty()) {
       println("$k█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄$e")
       println()
@@ -56,9 +56,6 @@ internal object LabzenMetaPrinter {
     println("$k█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄$e")
     println()
   }
-
-  private fun collect(): List<Information> =
-    Labzens.components().values.map(Component::information)
 
   private fun printSystemInformation() {
     val allSystemInformation = Labzens.allSystemInformation().filter { it.description != null }
@@ -93,7 +90,8 @@ internal object LabzenMetaPrinter {
 
   @JvmStatic
   fun main(args: Array<String>) {
+    ComponentRecorder.record()
     SystemInformationCollector.collect()
-    LabzenMetaPrinter.print()
+    print()
   }
 }

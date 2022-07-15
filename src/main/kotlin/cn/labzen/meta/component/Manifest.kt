@@ -20,7 +20,7 @@ internal class Manifest(private val componentClass: LabzenComponent) {
     }
   }
 
-  private fun fromCodeSource(codeSource: CodeSource): Information =
+  private fun fromCodeSource(codeSource: CodeSource): Information? =
     try {
       val connection = codeSource.location.openConnection()
       val jarFile = if (connection is JarURLConnection) {
@@ -31,7 +31,7 @@ internal class Manifest(private val componentClass: LabzenComponent) {
 
       fromJarFile(jarFile)
     } catch (ex: Exception) {
-      UNIDENTIFIED_INFORMATION
+      null
     }
 
   private fun fromJarFile(jarFile: JarFile): Information =
@@ -46,9 +46,13 @@ internal class Manifest(private val componentClass: LabzenComponent) {
     }
 
   private fun fromPackage(pck: Package): Information =
-    Information(pck.implementationTitle, pck.implementationVendor, pck.implementationVersion)
+    Information(
+      pck.implementationTitle ?: "",
+      pck.implementationVendor ?: "",
+      pck.implementationVersion ?: ""
+    )
 
-  companion object {
-    private val UNIDENTIFIED_INFORMATION = Information("", "", "")
-  }
+  // companion object {
+  //   private val UNIDENTIFIED_INFORMATION = Information("", "", "")
+  // }
 }

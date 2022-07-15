@@ -8,7 +8,8 @@ import org.springframework.core.Ordered
 
 class LabzenMetaInitializer : ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
 
-  override fun getOrder(): Int = 0
+  override fun getOrder(): Int =
+    Int.MIN_VALUE + 10
 
   override fun initialize(p0: ConfigurableApplicationContext) {
     ComponentRecorder.record()
