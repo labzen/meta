@@ -1,6 +1,7 @@
 package cn.labzen.meta
 
 import cn.labzen.meta.component.bean.Component
+import cn.labzen.meta.environment.bean.Environments
 import cn.labzen.meta.system.bean.SystemInformation
 import java.util.*
 
@@ -8,6 +9,7 @@ object Labzens {
 
   private val components = mutableMapOf<String, Component>()
   private val systemInformationList = mutableListOf<SystemInformation>()
+  private lateinit var environments: Environments
 
   internal fun addComponent(component: Component) {
     components[component.information.title] = component
@@ -25,4 +27,10 @@ object Labzens {
 
   fun allSystemInformation() =
     systemInformationList.toList()
+
+  internal fun setEnvironment(environments: Environments) {
+    this.environments = environments
+  }
+
+  fun environment() = environments
 }

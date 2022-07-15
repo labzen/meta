@@ -16,6 +16,7 @@ internal object LabzenMetaPrinter {
   private fun printInternal() {
     printLogoAndComponents()
     printSystemInformation()
+    printEnvironment()
   }
 
   private fun printLogoAndComponents() {
@@ -87,6 +88,25 @@ internal object LabzenMetaPrinter {
 
       println("$b♎ $indexString ${c[ci]}[ $catalogString :: $nameString ]$e ${si.title}  >>>  ${si.description}")
     }
+
+    println()
+  }
+
+  private fun printEnvironment() {
+    val env = Labzens.environment()
+
+    println("java.version: " + env.javaVersion)
+    println("java.vendor: " + env.javaVendor)
+    println("java.vendor.version: " + env.javaVendorVersion)
+    println("java.home: " + env.javaHome)
+    println("java.class.version: " + env.classVersion)
+    println("java.class.path: " + env.classpath)
+    println("java.library.path: " + env.libraryPath)
+    println("user.timezone: " + env.timezone)
+    println("user.home: " + env.userHome)
+    println("user.dir: " + env.userDir)
+    println("user.language: " + env.userLanguage)
+    println("java.io.tmpdi: " + env.ioTempPath)
 
     println()
   }

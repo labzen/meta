@@ -1,6 +1,7 @@
 package cn.labzen.meta
 
 import cn.labzen.meta.component.ComponentRecorder
+import cn.labzen.meta.environment.EnvironmentCollector
 import cn.labzen.meta.system.SystemInformationCollector
 import org.springframework.context.ApplicationContextInitializer
 import org.springframework.context.ConfigurableApplicationContext
@@ -14,7 +15,17 @@ class LabzenMetaInitializer : ApplicationContextInitializer<ConfigurableApplicat
   override fun initialize(p0: ConfigurableApplicationContext) {
     ComponentRecorder.record()
     SystemInformationCollector.collect()
+    EnvironmentCollector.collect()
 
     LabzenMetaPrinter.print()
   }
+
 }
+
+// fun main(args: Array<String>) {
+//   ComponentRecorder.record()
+//   SystemInformationCollector.collect()
+//   EnvironmentCollector.collect()
+//
+//   LabzenMetaPrinter.print()
+// }
