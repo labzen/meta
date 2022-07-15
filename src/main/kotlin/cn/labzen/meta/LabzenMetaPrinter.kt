@@ -1,15 +1,19 @@
 package cn.labzen.meta
 
-import cn.labzen.meta.component.ComponentRecorder
 import cn.labzen.meta.component.bean.Component
-import cn.labzen.meta.system.SystemInformationCollector
-import org.slf4j.LoggerFactory
 
 internal object LabzenMetaPrinter {
 
-  private val logger = LoggerFactory.getLogger(LabzenMetaPrinter::class.java)
-
   fun print() {
+    try {
+      Class.forName("cn.labzen.logger.Loggers")
+      // the information printing will be handed over to the labzen logger component to do
+    } catch (e: ClassNotFoundException) {
+      printInternal()
+    }
+  }
+
+  private fun printInternal() {
     printLogoAndComponents()
     printSystemInformation()
   }
@@ -59,7 +63,6 @@ internal object LabzenMetaPrinter {
 
   private fun printSystemInformation() {
     val allSystemInformation = Labzens.allSystemInformation().filter { it.description != null }
-    logger.info("当前主机信息：")
 
     val e = "\u001B[0m"
     val b = "\u001B[38;5;178m"
@@ -86,12 +89,5 @@ internal object LabzenMetaPrinter {
     }
 
     println()
-  }
-
-  @JvmStatic
-  fun main(args: Array<String>) {
-    ComponentRecorder.record()
-    SystemInformationCollector.collect()
-    print()
   }
 }
