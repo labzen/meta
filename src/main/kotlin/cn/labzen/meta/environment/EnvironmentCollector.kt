@@ -16,6 +16,7 @@ object EnvironmentCollector {
         getProperty("java.class.version"),
         getProperty("java.class.path"),
         getProperty("java.library.path"),
+        getProperty("line.separator"),
         getProperty("user.timezone"),
         getProperty("user.home"),
         getProperty("user.dir"),

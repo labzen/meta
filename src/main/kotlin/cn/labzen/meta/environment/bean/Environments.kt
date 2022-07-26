@@ -8,6 +8,7 @@ package cn.labzen.meta.environment.bean
  * @param classVersion 类格式版本号
  * @param classpath Class Path
  * @param libraryPath 加载库时搜索的路径列表
+ * @param separator 系统文件系统分隔符
  * @param timezone 时区
  * @param userHome 用户的主目录
  * @param userDir 用户的当前工作目录
@@ -22,6 +23,7 @@ data class Environments internal constructor(
   val classVersion: String,
   val classpath: String,
   val libraryPath: String,
+  val separator: String,
   val timezone: String,
   val userHome: String,
   val userDir: String,
