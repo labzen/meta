@@ -1,6 +1,7 @@
 package cn.labzen.meta
 
 import cn.labzen.meta.component.bean.Component
+import cn.labzen.meta.configuration.ConfigurationProcessor
 import cn.labzen.meta.environment.bean.Environments
 import cn.labzen.meta.system.bean.SystemInformation
 import java.util.*
@@ -20,6 +21,9 @@ object Labzens {
 
   fun components() =
     components.toMap()
+
+  fun <CI> configurationWith(inter: Class<CI>): CI =
+    ConfigurationProcessor.getInterfaceProxy(inter)
 
   internal fun addSystemInformation(systemInformation: SystemInformation) {
     systemInformationList.add(systemInformation)

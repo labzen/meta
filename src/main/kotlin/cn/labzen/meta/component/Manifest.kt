@@ -51,8 +51,4 @@ internal class Manifest(private val componentClass: LabzenComponent) {
       pck.implementationVendor ?: "",
       pck.implementationVersion ?: ""
     )
-
-  // companion object {
-  //   private val UNIDENTIFIED_INFORMATION = Information("", "", "")
-  // }
 }

@@ -1,0 +1,3 @@
+meta:
+  test: 123x
+  default-log-level: warn
