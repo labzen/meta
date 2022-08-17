@@ -14,12 +14,6 @@ internal object LabzenMetaPrinter {
   }
 
   private fun printInternal() {
-    printLogoAndComponents()
-    printSystemInformation()
-    printEnvironment()
-  }
-
-  private fun printLogoAndComponents() {
     val e = "\u001B[0m"
     val k = "\u001B[38;5;214m"
     val h = "\u001B[38;5;179m"
@@ -42,72 +36,21 @@ internal object LabzenMetaPrinter {
     println("$k█$e")
 
     val infos = Labzens.components().values.map(Component::information)
-    if (infos.isEmpty()) {
-      println("$k█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄$e")
-      println()
-      return
-    }
-    val maxLength = infos.maxOf { it.title.length }
+    if (infos.isNotEmpty()) {
+      val maxLength = infos.maxOf { it.title.length }
 
-    infos.forEach {
-      val title = it.title.padEnd(maxLength, ' ')
-      val versionWithColor = if (it.version.endsWith("-SNAPSHOT")) {
-        "\u001B[38;5;167mv${it.version}\u001B[0m"
-      } else {
-        "\u001B[38;5;157mv${it.version}\u001B[0m"
+      infos.forEach {
+        val title = it.title.padEnd(maxLength, ' ')
+        val versionWithColor = if (it.version.endsWith("-SNAPSHOT")) {
+          "\u001B[38;5;167mv${it.version}\u001B[0m"
+        } else {
+          "\u001B[38;5;157mv${it.version}\u001B[0m"
+        }
+        println("$k█$e  :: \u001B[38;5;184m$title\u001B[0m :: $versionWithColor - ${it.description}")
       }
-      println("$k█$e  :: \u001B[38;5;184m$title\u001B[0m :: $versionWithColor - ${it.description}")
     }
+
     println("$k█▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄$e")
-    println()
-  }
-
-  private fun printSystemInformation() {
-    val allSystemInformation = Labzens.allSystemInformation().filter { it.description != null }
-
-    val e = "\u001B[0m"
-    val b = "\u001B[38;5;178m"
-    val c = arrayOf("\u001B[38;5;107m", "\u001B[38;5;137m")
-
-    // 加这个 1 代表的是序号后边那个点
-    val indexLength = allSystemInformation.size.toString().length + 1
-    val catalogMaxLength = allSystemInformation.maxOf { it.catalog.length }
-    val nameMaxLength = allSystemInformation.maxOf { it.name.length }
-
-    var lastCatalog = allSystemInformation.first().catalog
-    var ci = 0
-    allSystemInformation.forEachIndexed { index, si ->
-      val indexString = "$index.".padStart(indexLength)
-      val catalogString = si.catalog.padStart(catalogMaxLength)
-      val nameString = si.name.padEnd(nameMaxLength)
-
-      if (lastCatalog != si.catalog) {
-        lastCatalog = si.catalog
-        ci = ci xor 1
-      }
-
-      println("$b♎ $indexString ${c[ci]}[ $catalogString :: $nameString ]$e ${si.title}  >>>  ${si.description}")
-    }
-
-    println()
-  }
-
-  private fun printEnvironment() {
-    val env = Labzens.environment()
-
-    println("java.version: " + env.javaVersion)
-    println("java.vendor: " + env.javaVendor)
-    println("java.vendor.version: " + env.javaVendorVersion)
-    println("java.home: " + env.javaHome)
-    println("java.class.version: " + env.classVersion)
-    println("java.class.path: " + env.classpath)
-    println("java.library.path: " + env.libraryPath)
-    println("user.timezone: " + env.timezone)
-    println("user.home: " + env.userHome)
-    println("user.dir: " + env.userDir)
-    println("user.language: " + env.userLanguage)
-    println("java.io.tmpdi: " + env.ioTempPath)
-
     println()
   }
 }
