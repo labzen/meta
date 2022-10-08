@@ -11,16 +11,16 @@ object EnvironmentCollector {
       val env = Environments(
         getProperty("java.version"),
         getProperty("java.vendor"),
-        getProperty("java.vendor.version"),
+        getProperty("java.vendor.url"),
         getProperty("java.home"),
         getProperty("java.class.version"),
         getProperty("java.class.path"),
         getProperty("java.library.path"),
+        getProperty("path.separator"),
+        getProperty("file.separator"),
         getProperty("line.separator"),
-        getProperty("user.timezone"),
         getProperty("user.home"),
         getProperty("user.dir"),
-        getProperty("user.language"),
         getProperty("java.io.tmpdir")
       )
       Labzens.setEnvironment(env)
