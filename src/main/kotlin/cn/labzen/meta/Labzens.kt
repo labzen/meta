@@ -16,9 +16,11 @@ object Labzens {
     components[component.information.title] = component
   }
 
+  @JvmStatic
   fun component(title: String) =
     Optional.ofNullable(components[title])
 
+  @JvmStatic
   fun components() =
     components.toMap()
 
@@ -29,6 +31,7 @@ object Labzens {
     systemInformationList.add(systemInformation)
   }
 
+  @JvmStatic
   fun allSystemInformation() =
     systemInformationList.toList()
 
@@ -36,5 +39,6 @@ object Labzens {
     this.environments = environments
   }
 
+  @JvmStatic
   fun environment() = environments
 }
