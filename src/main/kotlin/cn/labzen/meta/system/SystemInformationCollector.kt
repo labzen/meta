@@ -90,7 +90,7 @@ internal class SystemInformationCollector private constructor(si: SystemInfo) {
       addSystemInformation(SystemInformation(catalogIdentifier, "vendor", "CPU-厂商", vendor))
       addSystemInformation(SystemInformation(catalogIdentifier, "name", "CPU-名称", name))
       addSystemInformation(SystemInformation(catalogIdentifier, "identifier", "CPU-标识", identifier))
-      val architecture = "$microarchitecture ${if (isCpu64bit) "x64" else "x32" }"
+      val architecture = "$microarchitecture ${if (isCpu64bit) "x64" else "x32"}"
       addSystemInformation(SystemInformation(catalogIdentifier, "architecture", "CPU-架构", architecture))
       addSystemInformation(SystemInformation(catalogIdentifier, "vendorFreq", "CPU-频率", calculateHz(vendorFreq)))
     }
@@ -109,7 +109,14 @@ internal class SystemInformationCollector private constructor(si: SystemInfo) {
 
     val catalogPhysical = "hardware.memory.physicals"
     memory.physicalMemory.forEachIndexed { i, pm ->
-      addSystemInformation(SystemInformation(catalogPhysical, "$i.manufacturer", "物理内存-($i) 生产商　", pm.manufacturer))
+      addSystemInformation(
+        SystemInformation(
+          catalogPhysical,
+          "$i.manufacturer",
+          "物理内存-($i) 生产商　",
+          pm.manufacturer
+        )
+      )
       val description = "${pm.memoryType} ${calculateGB(pm.capacity)}"
       addSystemInformation(SystemInformation(catalogPhysical, "$i.memoryType", "物理内存-($i) 类型　　", description))
       addSystemInformation(SystemInformation(catalogPhysical, "$i.bankLabel", "物理内存-($i) 插槽　　", pm.bankLabel))

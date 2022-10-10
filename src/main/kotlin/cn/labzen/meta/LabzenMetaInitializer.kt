@@ -21,10 +21,4 @@ class LabzenMetaInitializer : ApplicationContextInitializer<ConfigurableApplicat
 
     LabzenMetaPrinter.print()
   }
-
-}
-
-fun main(args: Array<String>) {
-  ComponentRecorder.record()
-  ConfigurationReader.read()
 }
