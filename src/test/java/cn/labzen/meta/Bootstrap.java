@@ -18,5 +18,9 @@ public class Bootstrap {
     System.out.println(mc);
     System.out.println("meta test: " + mc.test());
     System.out.println("meta log level: " + mc.defaultLogLevel());
+    System.out.println("meta sub function: " + mc.subFun());
+    System.out.println("int number: " + mc.number());
+    System.out.println("double number: " + mc.doubleNumber());
+    System.out.println("boolean value: " + mc.bool());
   }
 }

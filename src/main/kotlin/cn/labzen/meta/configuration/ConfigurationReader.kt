@@ -29,7 +29,7 @@ class ConfigurationReader {
     }
 
     private fun readConfigurations() {
-      val serviceLoader = ServiceLoader.load(LabzenConfigurationResolver::class.java)
+      val serviceLoader = ServiceLoader.load(LabzenConfigurationFileResolver::class.java)
 
       val configurationProperties = mutableMapOf<String, Any?>()
       serviceLoader.map {

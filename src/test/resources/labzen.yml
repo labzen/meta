@@ -1,3 +1,9 @@
 meta:
   test: 123x
   default-log-level: warn
+  sub:
+    fun: subFunctionValue
+  unknown: xxxx
+  number: 123
+  double: 11.22
+  bool: true

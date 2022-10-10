@@ -1,6 +1,6 @@
 package cn.labzen.meta.configuration
 
-interface LabzenConfigurationResolver {
+interface LabzenConfigurationFileResolver {
 
   @Throws(RuntimeException::class)
   fun resolve(): Map<String, Any>

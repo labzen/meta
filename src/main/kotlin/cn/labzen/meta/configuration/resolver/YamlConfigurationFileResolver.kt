@@ -1,6 +1,6 @@
 package cn.labzen.meta.configuration.resolver
 
-import cn.labzen.meta.configuration.LabzenConfigurationResolver
+import cn.labzen.meta.configuration.LabzenConfigurationFileResolver
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.config.YamlProcessor
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
@@ -9,9 +9,9 @@ import java.io.InputStream
 import java.util.*
 
 
-class YamlConfigurationResolver : LabzenConfigurationResolver {
+class YamlConfigurationFileResolver : LabzenConfigurationFileResolver {
 
-  private val logger = LoggerFactory.getLogger(YamlConfigurationResolver::class.java)
+  private val logger = LoggerFactory.getLogger(YamlConfigurationFileResolver::class.java)
 
   override fun resolve(): Map<String, Any> {
     val pathResolver = PathMatchingResourcePatternResolver()

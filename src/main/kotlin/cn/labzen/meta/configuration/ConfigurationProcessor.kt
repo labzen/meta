@@ -3,14 +3,17 @@ package cn.labzen.meta.configuration
 import cn.labzen.meta.configuration.annotation.Configured
 import cn.labzen.meta.configuration.annotation.Item
 import cn.labzen.meta.configuration.bean.Meta
-import net.sf.cglib.proxy.Enhancer
+import javassist.util.proxy.ProxyFactory
+import javassist.util.proxy.ProxyObject
 import org.slf4j.event.Level
+import org.springframework.beans.SimpleTypeConverter
 import java.lang.reflect.Method
 
 internal object ConfigurationProcessor {
 
   private val configurationProxies = mutableMapOf<Class<*>, Any>()
   private lateinit var configurationProperties: Map<String, Any?>
+  private val converter = SimpleTypeConverter()
 
   fun parseInterface(configuredInterface: Class<*>) {
     if (!configuredInterface.isInterface) {
@@ -52,10 +55,31 @@ internal object ConfigurationProcessor {
     namespace: String,
     configurationItemMetas: Map<Method, Meta>
   ): Any {
-    val enhancer = Enhancer()
-    enhancer.setInterfaces(arrayOf(configuredInterface))
-    enhancer.setCallback(ConfigurationProxy(configuredInterface, namespace, configurationItemMetas))
-    return enhancer.create()
+    val proxyFactory = ProxyFactory()
+    proxyFactory.interfaces = arrayOf(configuredInterface)
+    val createdClass = proxyFactory.createClass()
+    val proxiedInstance = createdClass.getDeclaredConstructor().newInstance()
+    (proxiedInstance as ProxyObject).setHandler { _, thisMethod, _, _ ->
+      if (thisMethod.name == "toString") {
+        "The proxy instance of configuration interface: $configuredInterface"
+      } else {
+        val meta = configurationItemMetas[thisMethod]
+        meta ?: throw IllegalStateException("无法解析的配置类选项方法")
+
+        val path = "$namespace.${meta.path}"
+        val value = readConfigurationProperty(path) ?: meta.defaultValue
+
+        if (value == null && meta.required) {
+          throw IllegalStateException("配置项[$path]不能为空")
+        }
+
+        value?.let {
+          converter.convertIfNecessary(value, meta.returnType)
+        }
+      }
+    }
+
+    return proxiedInstance
   }
 
   fun <CI> getInterfaceProxy(inter: Class<CI>): CI {
@@ -71,7 +95,6 @@ internal object ConfigurationProcessor {
     configurationProperties = properties
   }
 
-  fun readConfigurationProperty(key: String): Any? =
+  private fun readConfigurationProperty(key: String): Any? =
     configurationProperties[key]
-
 }
