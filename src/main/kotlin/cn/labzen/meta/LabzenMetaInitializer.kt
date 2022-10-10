@@ -18,7 +18,5 @@ class LabzenMetaInitializer : ApplicationContextInitializer<ConfigurableApplicat
     SystemInformationCollector.collect()
     EnvironmentCollector.collect()
     ConfigurationReader.read()
-
-    LabzenMetaPrinter.print()
   }
 }
