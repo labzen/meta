@@ -13,7 +13,7 @@
 
   <artifactId>meta</artifactId>
   <packaging>jar</packaging>
-  <version>1.3-SNAPSHOT</version>
+  <version>1.3</version>
   <name>${organization.name}.Meta</name>
   <description>Labzen Meta - to manage the meta of labzen modules, and report them</description>
   <url>https://github.com/labzen/meta</url>
