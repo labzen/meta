@@ -47,7 +47,7 @@ internal object ConfigurationProcessor {
     val logLevel = annotation?.logLevel ?: Level.DEBUG
     val defaultValue = if (annotation?.defaultValue?.isNotBlank() == true) annotation.defaultValue else null
 
-    return Meta(method, method.returnType, path, required, logLevel, defaultValue)
+    return Meta(method, method.returnType, path, required, logLevel, defaultValue, annotation?.description)
   }
 
   private fun createConfigurationProxy(

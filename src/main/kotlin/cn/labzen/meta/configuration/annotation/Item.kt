@@ -9,5 +9,7 @@ annotation class Item(
   val path: String = "",
   val required: Boolean = true,
   val logLevel: Level = Level.DEBUG,
-  val defaultValue: String = ""
+  val defaultValue: String = "",
+  // todo 不太需要这个属性
+  val description: String = ""
 )

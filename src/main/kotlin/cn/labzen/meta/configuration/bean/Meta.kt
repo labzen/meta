@@ -9,5 +9,6 @@ data class Meta(
   val path: String,
   val required: Boolean,
   val logLevel: Level,
-  val defaultValue: String? = null
+  val defaultValue: String? = null,
+  val description: String? = null
 )
