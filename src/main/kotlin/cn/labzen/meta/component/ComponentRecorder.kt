@@ -5,7 +5,7 @@ import cn.labzen.meta.component.bean.Component
 import cn.labzen.meta.component.bean.Meta
 import java.util.*
 
-internal class ComponentRecorder private constructor() {
+class ComponentRecorder private constructor() {
 
   companion object {
 

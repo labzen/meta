@@ -8,7 +8,6 @@ import org.yaml.snakeyaml.Yaml
 import java.io.InputStream
 import java.util.*
 
-
 class YamlConfigurationFileResolver : LabzenConfigurationFileResolver {
 
   private val logger = LoggerFactory.getLogger(YamlConfigurationFileResolver::class.java)

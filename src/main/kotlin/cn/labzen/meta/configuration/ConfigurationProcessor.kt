@@ -21,7 +21,7 @@ internal object ConfigurationProcessor {
     }
 
     val configurationItemMetas = configuredInterface.methods.map(this::parseMethod).associateBy(Meta::method)
-    val namespace = configuredInterface.getAnnotation(Configured::class.java).namespace
+    val namespace = configuredInterface.getAnnotation(Configured::class.java)!!.namespace
     configurationProxies[configuredInterface] = createConfigurationProxy(
       configuredInterface, namespace, configurationItemMetas
     )
