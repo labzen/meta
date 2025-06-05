@@ -7,13 +7,13 @@
   <parent>
     <artifactId>parent</artifactId>
     <groupId>cn.labzen</groupId>
-    <version>11.9.4</version>
+    <version>11.9.5</version>
     <relativePath/>
   </parent>
 
   <artifactId>meta</artifactId>
   <packaging>jar</packaging>
-  <version>1.4.3</version>
+  <version>1.4.4</version>
   <name>Labzen.Meta</name>
   <description>Labzen Meta - to manage the meta of labzen modules, and report them</description>
   <url>https://github.com/labzen/meta</url>
@@ -153,12 +153,6 @@
       <plugin>
         <groupId>org.sonatype.central</groupId>
         <artifactId>central-publishing-maven-plugin</artifactId>
-        <version>0.5.0</version>
-        <extensions>true</extensions>
-        <configuration>
-          <publishingServerId>central</publishingServerId>
-          <autoPublish>true</autoPublish>
-        </configuration>
       </plugin>
     </plugins>
   </build>
