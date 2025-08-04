@@ -7,13 +7,13 @@
   <parent>
     <artifactId>parent</artifactId>
     <groupId>cn.labzen</groupId>
-    <version>11.9.7</version>
+    <version>21.0-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
   <artifactId>meta</artifactId>
   <packaging>jar</packaging>
-  <version>1.4.5</version>
+  <version>1.5.0-SNAPSHOT</version>
   <name>Labzen.Meta</name>
   <description>Labzen Meta - to manage the meta of labzen modules, and report them</description>
   <url>https://github.com/labzen/meta</url>
@@ -46,15 +46,6 @@
   </scm>
 
   <dependencies>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-reflect</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jetbrains.kotlin</groupId>
-      <artifactId>kotlin-stdlib</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -98,18 +89,9 @@
   </dependencies>
 
   <build>
-    <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
 
     <plugins>
-      <plugin>
-        <groupId>org.jetbrains.kotlin</groupId>
-        <artifactId>kotlin-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.jetbrains.dokka</groupId>
-        <artifactId>dokka-maven-plugin</artifactId>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>

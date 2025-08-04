@@ -1,0 +1,199 @@
+package cn.labzen.meta.system;
+
+import org.slf4j.helpers.MessageFormatter;
+import oshi.SystemInfo;
+import oshi.hardware.*;
+import oshi.software.os.OperatingSystem;
+
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+public final class SystemInformationCollector {
+
+  private static final SystemInformationCollector INSTANCE = new SystemInformationCollector();
+
+  private final SystemInfo systemInfo = new SystemInfo();
+  private final List<SystemInformation> infos = new ArrayList<>();
+  private final DecimalFormat decimalFormat = new DecimalFormat("0.#");
+
+  private SystemInformationCollector() {
+    decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
+  }
+
+  public static void collect() {
+    INSTANCE.collectOperatingSystem();
+
+    INSTANCE.collectComputerSystem();
+    INSTANCE.collectMotherBoard();
+    INSTANCE.collectFirmware();
+    INSTANCE.collectProcessor();
+    INSTANCE.collectMemory();
+    INSTANCE.collectDisks();
+    INSTANCE.collectNetworks();
+  }
+
+  public static List<SystemInformation> getAllInformation() {
+    return INSTANCE.infos;
+  }
+
+  private void collectOperatingSystem() {
+    String catalog = "os";
+    OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
+    String description = MessageFormatter.basicArrayFormat("{} {} {} {}版 ({}位)",
+        new String[]{operatingSystem.getManufacturer(),
+                     operatingSystem.getFamily(),
+                     operatingSystem.getVersionInfo().getVersion(),
+                     operatingSystem.getVersionInfo().getCodeName(),
+                     String.valueOf(operatingSystem.getBitness())});
+    addInformation(catalog, "pid", "系统-进程号", String.valueOf(operatingSystem.getProcessId()));
+    addInformation(catalog, "manufacturer", "系统-操作系统", description);
+  }
+
+  /**
+   * 计算机系统代表计算机系统/产品的物理硬件，包括BIOS/固件、主板、逻辑板等。
+   */
+  private void collectComputerSystem() {
+    ComputerSystem computerSystem = systemInfo.getHardware().getComputerSystem();
+    String catalog = "hardware.computer";
+    String description = computerSystem.getManufacturer() + computerSystem.getModel();
+    addInformation(catalog, "manufacturer", "计算机-名称　　　　", description);
+    addInformation(catalog, "serialNumber", "计算机-序列号　　　", computerSystem.getSerialNumber());
+    addInformation(catalog, "hardwareUUID", "计算机-硬件唯一标识", computerSystem.getHardwareUUID());
+  }
+
+  /**
+   * 获取计算机系统底板/主板。
+   */
+  private void collectMotherBoard() {
+    Baseboard baseboard = systemInfo.getHardware().getComputerSystem().getBaseboard();
+    String catalog = "hardware.board";
+    addInformation(catalog, "manufacturer", "主板-生产商", baseboard.getManufacturer());
+    addInformation(catalog, "model", "主板-模型　", baseboard.getModel());
+    addInformation(catalog, "version", "主板-版本　", baseboard.getVersion());
+    addInformation(catalog, "serialNumber", "主板-序列号", baseboard.getSerialNumber());
+  }
+
+  /**
+   * 获取计算机系统固件/BIOS。
+   */
+  private void collectFirmware() {
+    Firmware firmware = systemInfo.getHardware().getComputerSystem().getFirmware();
+    String catalog = "hardware.firmware";
+    addInformation(catalog, "manufacturer", "BIOS固件-生产商　", firmware.getManufacturer());
+    addInformation(catalog, "name", "BIOS固件-名称　　", firmware.getName());
+    addInformation(catalog, "version", "BIOS固件-版本　　", firmware.getVersion());
+    addInformation(catalog, "releaseDate", "BIOS固件-发布日期", firmware.getReleaseDate());
+  }
+
+  /**
+   * CPU的标识字符串，包括名称、供应商、步长、模型和族信息(也称为CPU的签名)。
+   */
+  private void collectProcessor() {
+    CentralProcessor processor = systemInfo.getHardware().getProcessor();
+    String count = MessageFormatter.basicArrayFormat("物理CPU：{}（个），逻辑CPU：{}（个）",
+        new Object[]{processor.getPhysicalProcessorCount(), processor.getLogicalProcessorCount()});
+    addInformation("hardware.processor", "count", "CPU-数量", count);
+
+    CentralProcessor.ProcessorIdentifier identifier = processor.getProcessorIdentifier();
+    String catalog = "hardware.processor.identifier";
+    String architecture = identifier.getMicroarchitecture() + (identifier.isCpu64bit() ? "x64" : "x32");
+    addInformation(catalog, "processorID", "CPU-签名", identifier.getProcessorID());
+    addInformation(catalog, "vendor", "CPU-厂商", identifier.getVendor());
+    addInformation(catalog, "name", "CPU-名称", identifier.getName());
+    addInformation(catalog, "identifier", "CPU-标识", identifier.getIdentifier());
+    addInformation(catalog, "architecture", "CPU-架构", architecture);
+    addInformation(catalog, "vendorFreq", "CPU-频率", calculateHZ(identifier.getVendorFreq()));
+  }
+
+  /**
+   * 计算机物理内存(RAM)以及任何可用虚拟内存的使用信息。
+   */
+  private void collectMemory() {
+    GlobalMemory memory = systemInfo.getHardware().getMemory();
+    String catalog = "hardware.memory";
+    addInformation(catalog, "total", "内存-大小", calculateGB(memory.getTotal()));
+    addInformation(catalog, "pageSize", "内存-内存页", calculateGB(memory.getPageSize()));
+
+    String catalogPhysical = "hardware.memory.physicals";
+    int index = 0;
+    for (PhysicalMemory physical : memory.getPhysicalMemory()) {
+      addInformation(catalogPhysical,
+          index + ".manufacturer",
+          "物理内存-" + index + " 生产商　",
+          physical.getManufacturer());
+      addInformation(catalogPhysical,
+          index + ".memoryType",
+          "物理内存-" + index + " 类型　",
+          physical.getMemoryType() + " " + calculateGB(physical.getCapacity()));
+      addInformation(catalogPhysical, index + ".bankLabel", "物理内存-" + index + " 插槽　", physical.getBankLabel());
+      addInformation(catalogPhysical,
+          index + ".clockSpeed",
+          "物理内存-" + index + " 时钟频率　",
+          calculateMHZ(physical.getClockSpeed()));
+      index++;
+    }
+  }
+
+  /**
+   * 表示物理硬盘或其他类似的存储设备。
+   */
+  private void collectDisks() {
+    List<HWDiskStore> stores = systemInfo.getHardware().getDiskStores();
+    String catalog = "hardware.disks";
+    int index = 0;
+    for (HWDiskStore store : stores) {
+      addInformation(catalog, index + ".name", "磁盘-" + index + " 名称　", store.getName());
+      addInformation(catalog, index + ".model", "磁盘-" + index + " 模型　", store.getModel());
+      addInformation(catalog, index + ".serial", "磁盘-" + index + " 序列号", store.getSerial());
+      addInformation(catalog, index + ".size", "磁盘-" + index + " 大小　", calculateGB(store.getSize()));
+      index++;
+    }
+  }
+
+  /**
+   * 网络接口。该列表不包括本地接口
+   */
+  private void collectNetworks() {
+    List<NetworkIF> networkIFs = systemInfo.getHardware().getNetworkIFs();
+    String catalog = "hardware.networks";
+    int index = 0;
+    for (NetworkIF network : networkIFs) {
+      addInformation(catalog,
+          index + ".name",
+          "网卡-" + index + " 名称　",
+          network.getName() + "(alias: " + network.getIfAlias() + ")");
+      addInformation(catalog, index + ".display", "网卡-" + index + " 接口描述　", network.getDisplayName());
+      addInformation(catalog,
+          index + ".address.ipv4",
+          "网卡-" + index + " IPv4　",
+          String.join(", ", network.getIPv4addr()));
+      addInformation(catalog,
+          index + ".address.ipv6",
+          "网卡-" + index + " IPv6　",
+          String.join(", ", network.getIPv6addr()));
+      addInformation(catalog, index + ".mac", "网卡-" + index + " 物理地址　", network.getMacaddr());
+      index++;
+    }
+  }
+
+  private void addInformation(String catalog, String name, String title, String description) {
+    infos.add(new SystemInformation(catalog, name, title, description));
+  }
+
+  private String calculateGB(Long bytes) {
+    double result = ((double) bytes) / 1024 / 1024 / 1024;
+    return decimalFormat.format(result) + " GB";
+  }
+
+  private String calculateHZ(Long bytes) {
+    double result = ((double) bytes) / 1000 / 1000 / 1000;
+    return decimalFormat.format(result) + " GHz";
+  }
+
+  private String calculateMHZ(Long bytes) {
+    double result = ((double) bytes) / 1000 / 1000;
+    return decimalFormat.format(result) + " MHz";
+  }
+}
