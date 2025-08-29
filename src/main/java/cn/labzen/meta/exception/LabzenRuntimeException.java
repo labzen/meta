@@ -8,7 +8,7 @@ public class LabzenRuntimeException extends RuntimeException {
     super(message);
   }
 
-  public LabzenRuntimeException(String message, String... args) {
+  public LabzenRuntimeException(String message, Object... args) {
     super(MessageFormatter.basicArrayFormat(message, args));
   }
 
@@ -20,7 +20,7 @@ public class LabzenRuntimeException extends RuntimeException {
     super(message, cause);
   }
 
-  public LabzenRuntimeException(Throwable cause, String message, String... args) {
+  public LabzenRuntimeException(Throwable cause, String message, Object... args) {
     super(MessageFormatter.basicArrayFormat(message, args), cause);
   }
 }

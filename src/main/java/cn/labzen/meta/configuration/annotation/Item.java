@@ -5,7 +5,7 @@ import org.slf4j.event.Level;
 import java.lang.annotation.*;
 
 @Documented
-@Target(ElementType.TYPE)
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Item {
 

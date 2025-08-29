@@ -10,6 +10,7 @@ import javassist.util.proxy.ProxyObject;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.event.DefaultLoggingEvent;
 import org.slf4j.event.Level;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverterSupport;
@@ -126,6 +127,9 @@ public final class ConfigurationProcessor {
         Object value = PROPERTIES.get(path);
         if (value == null && meta.required()) {
           throw new IllegalStateException("配置项[" + path + "]不能为空");
+        }
+        if (value == null && meta.defaultValue()!=null) {
+          value = meta.defaultValue();
         }
 
         if (value != null) {

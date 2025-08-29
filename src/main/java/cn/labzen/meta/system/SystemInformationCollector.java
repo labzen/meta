@@ -47,8 +47,8 @@ public final class SystemInformationCollector {
                      operatingSystem.getVersionInfo().getVersion(),
                      operatingSystem.getVersionInfo().getCodeName(),
                      String.valueOf(operatingSystem.getBitness())});
-    addInformation(catalog, "pid", "系统-进程号", String.valueOf(operatingSystem.getProcessId()));
-    addInformation(catalog, "manufacturer", "系统-操作系统", description);
+    addInformation(catalog, "pid", "系统-进程号　　", String.valueOf(operatingSystem.getProcessId()));
+    addInformation(catalog, "manufacturer", "系统-操作系统　", description);
   }
 
   /**
@@ -58,9 +58,9 @@ public final class SystemInformationCollector {
     ComputerSystem computerSystem = systemInfo.getHardware().getComputerSystem();
     String catalog = "hardware.computer";
     String description = computerSystem.getManufacturer() + computerSystem.getModel();
-    addInformation(catalog, "manufacturer", "计算机-名称　　　　", description);
-    addInformation(catalog, "serialNumber", "计算机-序列号　　　", computerSystem.getSerialNumber());
-    addInformation(catalog, "hardwareUUID", "计算机-硬件唯一标识", computerSystem.getHardwareUUID());
+    addInformation(catalog, "manufacturer", "计算机-名称　　", description);
+    addInformation(catalog, "serialNumber", "计算机-序列号　", computerSystem.getSerialNumber());
+    addInformation(catalog, "hardwareUUID", "计算机-硬件标识", computerSystem.getHardwareUUID());
   }
 
   /**
@@ -69,10 +69,10 @@ public final class SystemInformationCollector {
   private void collectMotherBoard() {
     Baseboard baseboard = systemInfo.getHardware().getComputerSystem().getBaseboard();
     String catalog = "hardware.board";
-    addInformation(catalog, "manufacturer", "主板-生产商", baseboard.getManufacturer());
-    addInformation(catalog, "model", "主板-模型　", baseboard.getModel());
-    addInformation(catalog, "version", "主板-版本　", baseboard.getVersion());
-    addInformation(catalog, "serialNumber", "主板-序列号", baseboard.getSerialNumber());
+    addInformation(catalog, "manufacturer", "主板-生产商　　", baseboard.getManufacturer());
+    addInformation(catalog, "model", "主板-模型　　　", baseboard.getModel());
+    addInformation(catalog, "version", "主板-版本　　　", baseboard.getVersion());
+    addInformation(catalog, "serialNumber", "主板-序列号　　", baseboard.getSerialNumber());
   }
 
   /**
@@ -81,10 +81,10 @@ public final class SystemInformationCollector {
   private void collectFirmware() {
     Firmware firmware = systemInfo.getHardware().getComputerSystem().getFirmware();
     String catalog = "hardware.firmware";
-    addInformation(catalog, "manufacturer", "BIOS固件-生产商　", firmware.getManufacturer());
-    addInformation(catalog, "name", "BIOS固件-名称　　", firmware.getName());
-    addInformation(catalog, "version", "BIOS固件-版本　　", firmware.getVersion());
-    addInformation(catalog, "releaseDate", "BIOS固件-发布日期", firmware.getReleaseDate());
+    addInformation(catalog, "manufacturer", "BIOS-生产商 　", firmware.getManufacturer());
+    addInformation(catalog, "name", "BIOS-名称 　　", firmware.getName());
+    addInformation(catalog, "version", "BIOS-版本 　　", firmware.getVersion());
+    addInformation(catalog, "releaseDate", "BIOS-发布日期 ", firmware.getReleaseDate());
   }
 
   /**
@@ -113,26 +113,28 @@ public final class SystemInformationCollector {
   private void collectMemory() {
     GlobalMemory memory = systemInfo.getHardware().getMemory();
     String catalog = "hardware.memory";
-    addInformation(catalog, "total", "内存-大小", calculateGB(memory.getTotal()));
+    addInformation(catalog, "total", "内存-大小　", calculateGB(memory.getTotal()));
     addInformation(catalog, "pageSize", "内存-内存页", calculateGB(memory.getPageSize()));
 
     String catalogPhysical = "hardware.memory.physicals";
-    int index = 0;
-    for (PhysicalMemory physical : memory.getPhysicalMemory()) {
+
+    List<PhysicalMemory> physicalMemories = memory.getPhysicalMemory();
+    int maxIndexLength = String.valueOf(physicalMemories.size()).length();
+    String indexFormatPattern = "物理内存-%-" + maxIndexLength + "s ";
+    for (int i = 0; i < physicalMemories.size(); i++) {
+      PhysicalMemory physical = physicalMemories.get(i);
+      String indexString = String.format(indexFormatPattern, i);
+
+      addInformation(catalogPhysical, i + ".manufacturer", indexString + " 生产商　", physical.getManufacturer());
       addInformation(catalogPhysical,
-          index + ".manufacturer",
-          "物理内存-" + index + " 生产商　",
-          physical.getManufacturer());
-      addInformation(catalogPhysical,
-          index + ".memoryType",
-          "物理内存-" + index + " 类型　",
+          i + ".memoryType",
+          indexString + " 类型　　",
           physical.getMemoryType() + " " + calculateGB(physical.getCapacity()));
-      addInformation(catalogPhysical, index + ".bankLabel", "物理内存-" + index + " 插槽　", physical.getBankLabel());
+      addInformation(catalogPhysical, i + ".bankLabel", indexString + " 插槽　　", physical.getBankLabel());
       addInformation(catalogPhysical,
-          index + ".clockSpeed",
-          "物理内存-" + index + " 时钟频率　",
+          i + ".clockSpeed",
+          indexString + " 时钟频率",
           calculateMHZ(physical.getClockSpeed()));
-      index++;
     }
   }
 
@@ -156,25 +158,22 @@ public final class SystemInformationCollector {
    * 网络接口。该列表不包括本地接口
    */
   private void collectNetworks() {
-    List<NetworkIF> networkIFs = systemInfo.getHardware().getNetworkIFs();
     String catalog = "hardware.networks";
-    int index = 0;
-    for (NetworkIF network : networkIFs) {
+    List<NetworkIF> networkIFs = systemInfo.getHardware().getNetworkIFs();
+    int maxIndexLength = String.valueOf(networkIFs.size()).length();
+    String indexFormatPattern = "网卡-%-" + maxIndexLength + "s ";
+    for (int i = 0; i < networkIFs.size(); i++) {
+      NetworkIF network = networkIFs.get(i);
+      String indexString = String.format(indexFormatPattern, i);
+
       addInformation(catalog,
-          index + ".name",
-          "网卡-" + index + " 名称　",
-          network.getName() + "(alias: " + network.getIfAlias() + ")");
-      addInformation(catalog, index + ".display", "网卡-" + index + " 接口描述　", network.getDisplayName());
-      addInformation(catalog,
-          index + ".address.ipv4",
-          "网卡-" + index + " IPv4　",
-          String.join(", ", network.getIPv4addr()));
-      addInformation(catalog,
-          index + ".address.ipv6",
-          "网卡-" + index + " IPv6　",
-          String.join(", ", network.getIPv6addr()));
-      addInformation(catalog, index + ".mac", "网卡-" + index + " 物理地址　", network.getMacaddr());
-      index++;
+          i + ".name",
+          indexString + " 名称　　　",
+          network.getName() + " (alias: " + network.getIfAlias() + ")");
+      addInformation(catalog, i + ".display", indexString + " 接口描述　", network.getDisplayName());
+      addInformation(catalog, i + ".address.ipv4", indexString + " IPv4 　　", String.join(", ", network.getIPv4addr()));
+      addInformation(catalog, i + ".address.ipv6", indexString + " IPv6 　　", String.join(", ", network.getIPv6addr()));
+      addInformation(catalog, i + ".mac", indexString + " 物理地址　", network.getMacaddr());
     }
   }
 

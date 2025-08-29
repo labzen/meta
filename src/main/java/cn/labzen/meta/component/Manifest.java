@@ -1,13 +1,19 @@
 package cn.labzen.meta.component;
 
 import cn.labzen.meta.component.bean.Information;
+import org.apache.maven.model.Developer;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.security.CodeSource;
+import java.util.List;
 import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -24,11 +30,17 @@ public class Manifest {
     Class<? extends DeclaredComponent> clazz = declaredComponent.getClass();
     CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
 
-    try {
-      return fromCodeSource(codeSource);
-    } catch (RuntimeException e) {
-      return fromPackage(clazz.getPackage());
+    Information information;
+    information = fromCodeSource(codeSource);
+    if (information != null) {
+      return information;
     }
+    information = fromMaven();
+    if (information != null) {
+      return information;
+    }
+    information = fromPackage(clazz.getPackage());
+    return information;
   }
 
   private Information fromCodeSource(CodeSource codeSource) throws RuntimeException {
@@ -50,7 +62,30 @@ public class Manifest {
             declaredComponent.description());
       }
     } catch (IOException | URISyntaxException e) {
-      throw new RuntimeException(e);
+      return null;
+    }
+  }
+
+  private Information fromMaven() {
+    MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+    try (FileReader fileReader = new FileReader("pom.xml")) {
+      Model model = mavenXpp3Reader.read(fileReader);
+
+      String title = model.getName();
+      if (title == null || title.isEmpty()) {
+        title = model.getArtifactId();
+      }
+      String vendor = model.getOrganization().getName();
+      if (vendor == null || vendor.isEmpty()) {
+        List<Developer> developers = model.getDevelopers();
+        if (developers != null && !developers.isEmpty()) {
+          vendor = developers.getFirst().getName();
+        }
+      }
+      String version = model.getVersion();
+      return new Information(title, vendor, version, declaredComponent.description());
+    } catch (IOException | XmlPullParserException e) {
+      return null;
     }
   }
 

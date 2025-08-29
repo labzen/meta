@@ -8,7 +8,7 @@ public class LabzenException extends Exception {
     super(message);
   }
 
-  public LabzenException(String message, String... args) {
+  public LabzenException(String message, Object... args) {
     super(MessageFormatter.basicArrayFormat(message, args));
   }
 
@@ -20,7 +20,7 @@ public class LabzenException extends Exception {
     super(message, cause);
   }
 
-  public LabzenException(Throwable cause, String message, String... args) {
+  public LabzenException(Throwable cause, String message, Object... args) {
     super(MessageFormatter.basicArrayFormat(message, args), cause);
   }
 }
