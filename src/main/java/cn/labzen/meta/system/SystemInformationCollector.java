@@ -1,5 +1,7 @@
 package cn.labzen.meta.system;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 import oshi.SystemInfo;
 import oshi.hardware.*;
@@ -12,7 +14,10 @@ import java.util.List;
 
 public final class SystemInformationCollector {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(SystemInformationCollector.class);
   private static final SystemInformationCollector INSTANCE = new SystemInformationCollector();
+
+  private static boolean collected = false;
 
   private final SystemInfo systemInfo = new SystemInfo();
   private final List<SystemInformation> infos = new ArrayList<>();
@@ -23,15 +28,60 @@ public final class SystemInformationCollector {
   }
 
   public static void collect() {
-    INSTANCE.collectOperatingSystem();
+    if (collected) {
+      LOGGER.warn("系统信息已收集，请勿重复收集");
+      return;
+    }
 
-    INSTANCE.collectComputerSystem();
-    INSTANCE.collectMotherBoard();
-    INSTANCE.collectFirmware();
-    INSTANCE.collectProcessor();
-    INSTANCE.collectMemory();
-    INSTANCE.collectDisks();
-    INSTANCE.collectNetworks();
+    try {
+      INSTANCE.collectOperatingSystem();
+    } catch (Exception e) {
+      LOGGER.error("收集操作系统信息失败", e);
+    }
+
+    try {
+      INSTANCE.collectComputerSystem();
+    } catch (Exception e) {
+      LOGGER.error("收集计算机信息失败", e);
+    }
+
+    try {
+      INSTANCE.collectMotherBoard();
+    } catch (Exception e) {
+      LOGGER.error("收集主板信息失败", e);
+    }
+
+    try {
+      INSTANCE.collectFirmware();
+    } catch (Exception e) {
+      LOGGER.error("收集固件信息失败", e);
+    }
+
+    try {
+      INSTANCE.collectProcessor();
+    } catch (Exception e) {
+      LOGGER.error("收集处理器信息失败", e);
+    }
+
+    try {
+      INSTANCE.collectMemory();
+    } catch (Exception e) {
+      LOGGER.error("收集内存信息失败", e);
+    }
+
+    try {
+      INSTANCE.collectDisks();
+    } catch (Exception e) {
+      LOGGER.error("收集磁盘信息失败", e);
+    }
+
+    try {
+      INSTANCE.collectNetworks();
+    } catch (Exception e) {
+      LOGGER.error("收集网络信息失败", e);
+    }
+
+    collected = true;
   }
 
   public static List<SystemInformation> getAllInformation() {

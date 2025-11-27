@@ -53,13 +53,20 @@ public class Manifest {
         jarFile = new JarFile(new File(codeSource.getLocation().toURI()));
       }
 
-      Attributes attributes;
       try (jarFile) {
-        attributes = jarFile.getManifest().getMainAttributes();
-        return new Information(attributes.getValue(Attributes.Name.IMPLEMENTATION_TITLE),
-            attributes.getValue(Attributes.Name.IMPLEMENTATION_VENDOR),
-            attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION),
-            declaredComponent.description());
+        if (jarFile.getManifest() == null) {
+          return null;
+        }
+        Attributes attributes = jarFile.getManifest().getMainAttributes();
+        if (attributes == null) {
+          return null;
+        }
+
+        String title = attributes.getValue(Attributes.Name.IMPLEMENTATION_TITLE);
+        String vendor = attributes.getValue(Attributes.Name.IMPLEMENTATION_VENDOR);
+        String version = attributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+
+        return new Information(title, vendor, version, declaredComponent.description());
       }
     } catch (IOException | URISyntaxException e) {
       return null;
@@ -75,14 +82,28 @@ public class Manifest {
       if (title == null || title.isEmpty()) {
         title = model.getArtifactId();
       }
-      String vendor = model.getOrganization().getName();
+
+      String vendor = null;
+      if (model.getOrganization() != null) {
+        vendor = model.getOrganization().getName();
+      }
       if (vendor == null || vendor.isEmpty()) {
         List<Developer> developers = model.getDevelopers();
         if (developers != null && !developers.isEmpty()) {
-          vendor = developers.getFirst().getName();
+          if (developers.getFirst() != null) {
+            vendor = developers.getFirst().getName();
+          }
         }
       }
+      if (vendor == null) {
+        vendor = "";
+      }
+
       String version = model.getVersion();
+      if (version == null) {
+        version = "";
+      }
+
       return new Information(title, vendor, version, declaredComponent.description());
     } catch (IOException | XmlPullParserException e) {
       return null;

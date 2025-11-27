@@ -10,7 +10,6 @@ import javassist.util.proxy.ProxyObject;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
-import org.slf4j.event.DefaultLoggingEvent;
 import org.slf4j.event.Level;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverterSupport;
@@ -90,7 +89,7 @@ public final class ConfigurationProcessor {
         if (Character.isUpperCase(c)) {
           chips.append("-");
         }
-        chips.append(c);
+        chips.append(Character.toLowerCase(c));
       }
       path = chips.toString();
     }
@@ -128,14 +127,29 @@ public final class ConfigurationProcessor {
         if (value == null && meta.required()) {
           throw new IllegalStateException("配置项[" + path + "]不能为空");
         }
-        if (value == null && meta.defaultValue()!=null) {
+        if (value == null && meta.defaultValue() != null) {
           value = meta.defaultValue();
         }
 
-        if (value != null) {
-          return CONVERTER.convertIfNecessary(value, meta.returnType());
+        Class<?> returnType = meta.returnType();
+        if (value == null) {
+          // 若返回类型是基本类型且没有值（也没有默认值），提前抛出更明确的异常
+          if (returnType.isPrimitive()) {
+            throw new IllegalStateException(String.format("配置项[%s]缺失，且未设置默认值，无法注入到基本类型[%s]",
+                path,
+                returnType.getName()));
+          }
+          return null;
         }
-        return null;
+
+        try {
+          return CONVERTER.convertIfNecessary(value, returnType);
+        } catch (Exception ex) {
+          throw new IllegalStateException(String.format("配置项[%s]的值[%s]无法转换为类型[%s]",
+              path,
+              value,
+              returnType.getName()), ex);
+        }
       });
 
       return proxiedInstance;

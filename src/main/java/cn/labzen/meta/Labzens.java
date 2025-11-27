@@ -7,14 +7,14 @@ import cn.labzen.meta.environment.Environments;
 import cn.labzen.meta.system.SystemInformation;
 import cn.labzen.meta.system.SystemInformationCollector;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class Labzens {
 
-  private static final Map<String, ComponentMeta> componentMetas = new HashMap<>();
+  private static final Map<String, ComponentMeta> componentMetas = new ConcurrentHashMap<>();
 
   private Labzens() {
   }
