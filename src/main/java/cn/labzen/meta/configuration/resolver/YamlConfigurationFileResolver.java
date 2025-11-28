@@ -43,6 +43,9 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
     } catch (IOException e) {
       logger.error("无法读取配置文件", e);
       return Map.of();
+    } catch (Exception e) {
+      logger.error("配置文件格式错误或解析失败", e);
+      return Map.of();
     }
   }
 

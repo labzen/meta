@@ -10,6 +10,7 @@ import oshi.software.os.OperatingSystem;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class SystemInformationCollector {
@@ -85,7 +86,7 @@ public final class SystemInformationCollector {
   }
 
   public static List<SystemInformation> getAllInformation() {
-    return INSTANCE.infos;
+    return Collections.unmodifiableList(INSTANCE.infos);
   }
 
   private void collectOperatingSystem() {

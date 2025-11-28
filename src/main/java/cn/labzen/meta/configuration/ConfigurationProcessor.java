@@ -10,29 +10,38 @@ import javassist.util.proxy.ProxyObject;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverterSupport;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public final class ConfigurationProcessor {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationProcessor.class);
+
   private static final TypeConverterSupport CONVERTER = new SimpleTypeConverter();
-  private static final Map<String, Object> PROPERTIES = new HashMap<>();
-  private static final Map<Class<?>, Object> PROXIES = new HashMap<>();
+  private static final Map<String, Object> PROPERTIES = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Object> PROXIES = new ConcurrentHashMap<>();
 
   private ConfigurationProcessor() {
   }
 
-  public static void readConfigurations() {
+  public static void readConfigurations() throws ServiceConfigurationError {
     ServiceLoader<ConfigurationFileResolver> loaded = ServiceLoader.load(ConfigurationFileResolver.class);
 
     for (ConfigurationFileResolver resolver : loaded) {
-      Map<String, Object> resolved = resolver.resolve();
-      PROPERTIES.putAll(resolved);
+      try {
+        Map<String, Object> resolved = resolver.resolve();
+        PROPERTIES.putAll(resolved);
+      } catch (Exception e) {
+        LOGGER.error("Labzen配置解析器 [{}] 执行失败，跳过", resolver.getClass().getName(), e);
+      }
     }
   }
 
@@ -42,6 +51,12 @@ public final class ConfigurationProcessor {
                                .stream()
                                .map(cm -> cm.component().packageBased())
                                .toArray(String[]::new);
+
+    // 如果没有组件，packages 为空数组，Reflections 会扫描整个 classpath
+    if (packages.length == 0) {
+      // 无需扫描配置接口
+      return;
+    }
 
     ConfigurationBuilder configurationBuilder = new ConfigurationBuilder().forPackages(packages)
                                                                           .setScanners(Scanners.TypesAnnotated);

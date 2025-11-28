@@ -1,5 +1,7 @@
 package cn.labzen.meta.component.bean;
 
-public record Information(String title, String vendor, String version, String description) {
+import javax.annotation.Nonnull;
+
+public record Information(@Nonnull String title, String vendor, String version, String description) {
 
 }
