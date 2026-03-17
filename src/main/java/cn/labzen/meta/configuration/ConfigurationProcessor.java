@@ -13,8 +13,6 @@ import org.reflections.util.ConfigurationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
-import org.springframework.beans.SimpleTypeConverter;
-import org.springframework.beans.TypeConverterSupport;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -25,8 +23,6 @@ public final class ConfigurationProcessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationProcessor.class);
 
-  private static final TypeConverterSupport CONVERTER = new SimpleTypeConverter();
-  private static final Map<String, Object> PROPERTIES = new ConcurrentHashMap<>();
   private static final Map<Class<?>, Object> PROXIES = new ConcurrentHashMap<>();
 
   private ConfigurationProcessor() {
@@ -38,7 +34,7 @@ public final class ConfigurationProcessor {
     for (ConfigurationFileResolver resolver : loaded) {
       try {
         Map<String, Object> resolved = resolver.resolve();
-        PROPERTIES.putAll(resolved);
+        ConfigurationProperties.putAll(resolved);
       } catch (Exception e) {
         LOGGER.error("Labzen配置解析器 [{}] 执行失败，跳过", resolver.getClass().getName(), e);
       }
@@ -52,7 +48,7 @@ public final class ConfigurationProcessor {
                                .map(cm -> cm.component().packageBased())
                                .toArray(String[]::new);
 
-    // 如果没有组件，packages 为空数组，Reflections 会扫描整个 classpath
+    // 如果没有组件，packages 为空数组
     if (packages.length == 0) {
       // 无需扫描配置接口
       return;
@@ -127,45 +123,8 @@ public final class ConfigurationProcessor {
 
     try {
       Object proxiedInstance = createdClass.getDeclaredConstructor().newInstance();
-      ((ProxyObject) proxiedInstance).setHandler((self, thisMethod, proceed, args) -> {
-        if ("toString".equals(thisMethod.getName())) {
-          return "The proxy instance of configuration interface: " + configuredInterface.getName();
-        }
-
-        Meta meta = metas.get(thisMethod);
-        if (meta == null) {
-          throw new IllegalStateException("无法解析的配置类选项方法：" + thisMethod.getName());
-        }
-
-        String path = namespace + "." + meta.path();
-        Object value = PROPERTIES.get(path);
-        if (value == null && meta.required()) {
-          throw new IllegalStateException("配置项[" + path + "]不能为空");
-        }
-        if (value == null && meta.defaultValue() != null) {
-          value = meta.defaultValue();
-        }
-
-        Class<?> returnType = meta.returnType();
-        if (value == null) {
-          // 若返回类型是基本类型且没有值（也没有默认值），提前抛出更明确的异常
-          if (returnType.isPrimitive()) {
-            throw new IllegalStateException(String.format("配置项[%s]缺失，且未设置默认值，无法注入到基本类型[%s]",
-                path,
-                returnType.getName()));
-          }
-          return null;
-        }
-
-        try {
-          return CONVERTER.convertIfNecessary(value, returnType);
-        } catch (Exception ex) {
-          throw new IllegalStateException(String.format("配置项[%s]的值[%s]无法转换为类型[%s]",
-              path,
-              value,
-              returnType.getName()), ex);
-        }
-      });
+      ConfigurationMethodHandler methodHandler = new ConfigurationMethodHandler(configuredInterface, namespace, metas);
+      ((ProxyObject) proxiedInstance).setHandler(methodHandler);
 
       return proxiedInstance;
     } catch (ReflectiveOperationException e) {

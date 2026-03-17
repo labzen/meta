@@ -2,16 +2,26 @@ test:
   string-value: "test-string"
   int-value: 123
   boolean-value: true
-  
+
 database:
   host: localhost
   port: 3306
-  
+
 app:
   name: test-app
   version: 1.0.0
-  
+
 nested:
   level1:
     level2:
       value: "deep-value"
+
+collection:
+  listing:
+    - item1
+    - item2
+    - item3
+  mapping:
+    key1: value1
+    key2: value2
+    key3: value3
