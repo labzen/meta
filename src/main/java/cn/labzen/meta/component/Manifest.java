@@ -6,6 +6,7 @@ import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -18,6 +19,12 @@ import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
+/**
+ * 组件清单读取器
+ * <p>
+ * 负责从JAR包的Manifest文件、pom.xml或Package元数据中提取组件信息。
+ * 按优先级依次尝试：从JAR Manifest读取 → 从pom.xml读取 → 从Package元数据读取。
+ */
 public class Manifest {
 
   private final DeclaredComponent declaredComponent;
@@ -26,7 +33,17 @@ public class Manifest {
     this.declaredComponent = declaredComponent;
   }
 
-  public Information determine() {
+  /**
+   * 确定组件信息
+   * <p>
+   * 按优先级尝试获取组件信息：
+   * 1. 从JAR的Manifest文件获取（推荐方式）
+   * 2. 从项目根目录的pom.xml获取
+   * 3. 从Package元数据获取（兜底方式）
+   *
+   * @return 组件信息对象，若都无法获取则返回null
+   */
+  public @Nullable Information determine() {
     Class<? extends DeclaredComponent> clazz = declaredComponent.getClass();
     CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
 
@@ -43,6 +60,14 @@ public class Manifest {
     return information;
   }
 
+  /**
+   * 从JAR的Manifest文件读取组件信息
+   * <p>
+   * 读取JAR包中META-INF/MANIFEST.MF文件的实现属性。
+   *
+   * @param codeSource 类加载来源
+   * @return 组件信息，若读取失败则返回null
+   */
   private Information fromCodeSource(CodeSource codeSource) throws RuntimeException {
     try {
       URLConnection connection = codeSource.getLocation().openConnection();
@@ -73,6 +98,13 @@ public class Manifest {
     }
   }
 
+  /**
+   * 从pom.xml读取组件信息
+   * <p>
+   * 解析项目根目录下的pom.xml文件，提取项目名称、组织/开发者信息和版本号。
+   *
+   * @return 组件信息，若文件不存在或解析失败则返回null
+   */
   private Information fromMaven() {
     MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
     try (FileReader fileReader = new FileReader("pom.xml")) {
@@ -110,6 +142,14 @@ public class Manifest {
     }
   }
 
+  /**
+   * 从Package元数据读取组件信息
+   * <p>
+   * 作为兜底方案，从类的Package对象获取实现信息。
+   *
+   * @param pck 类的Package对象
+   * @return 组件信息
+   */
   private Information fromPackage(Package pck) {
     String title = Objects.requireNonNullElse(pck.getImplementationTitle(), "");
     String vendor = Objects.requireNonNullElse(pck.getImplementationVendor(), "");

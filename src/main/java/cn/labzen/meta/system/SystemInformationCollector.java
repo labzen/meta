@@ -13,6 +13,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 系统硬件信息收集器
+ * <p>
+ * 使用OSHI库收集计算机的硬件信息，包括：
+ * 操作系统、计算机系统、主板、固件、处理器、内存、磁盘、网络等。
+ * 采用单例模式，只在首次调用collect()时执行信息收集。
+ */
 public final class SystemInformationCollector {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemInformationCollector.class);
@@ -28,6 +35,12 @@ public final class SystemInformationCollector {
     decimalFormat.setRoundingMode(RoundingMode.HALF_UP);
   }
 
+  /**
+   * 执行系统硬件信息收集
+   * <p>
+   * 按顺序收集各类硬件信息，捕获异常以确保不影响其他信息的收集。
+   * 信息收集完成后标记为已收集状态，防止重复收集。
+   */
   public static void collect() {
     if (collected) {
       LOGGER.warn("系统信息已收集，请勿重复收集");
@@ -85,10 +98,20 @@ public final class SystemInformationCollector {
     collected = true;
   }
 
+  /**
+   * 获取所有已收集的系统硬件信息
+   *
+   * @return 不可变的系统信息列表
+   */
   public static List<SystemInformation> getAllInformation() {
     return Collections.unmodifiableList(INSTANCE.infos);
   }
 
+  /**
+   * 收集操作系统信息
+   * <p>
+   * 包括进程ID、操作系统厂商、版本、位数等。
+   */
   private void collectOperatingSystem() {
     String catalog = "os";
     OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
@@ -139,7 +162,9 @@ public final class SystemInformationCollector {
   }
 
   /**
-   * CPU的标识字符串，包括名称、供应商、步长、模型和族信息(也称为CPU的签名)。
+   * 收集CPU信息
+   * <p>
+   * 包括物理/逻辑CPU数量、厂商、名称、架构、微代码、频率等。
    */
   private void collectProcessor() {
     CentralProcessor processor = systemInfo.getHardware().getProcessor();
@@ -159,7 +184,9 @@ public final class SystemInformationCollector {
   }
 
   /**
-   * 计算机物理内存(RAM)以及任何可用虚拟内存的使用信息。
+   * 收集物理内存信息
+   * <p>
+   * 包括总内存大小、内存页大小、各物理内存条详细信息。
    */
   private void collectMemory() {
     GlobalMemory memory = systemInfo.getHardware().getMemory();
@@ -190,7 +217,9 @@ public final class SystemInformationCollector {
   }
 
   /**
-   * 表示物理硬盘或其他类似的存储设备。
+   * 收集磁盘存储信息
+   * <p>
+   * 包括磁盘名称、型号、序列号、总容量等。
    */
   private void collectDisks() {
     List<HWDiskStore> stores = systemInfo.getHardware().getDiskStores();
@@ -206,7 +235,9 @@ public final class SystemInformationCollector {
   }
 
   /**
-   * 网络接口。该列表不包括本地接口
+   * 收集网络接口信息
+   * <p>
+   * 包括网卡名称、描述、IPv4/IPv6地址、MAC地址等。
    */
   private void collectNetworks() {
     String catalog = "hardware.networks";

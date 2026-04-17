@@ -11,6 +11,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * YAML配置文件解析器
+ * <p>
+ * 实现ConfigurationFileResolver接口，负责从classpath中查找并解析YAML配置文件。
+ * 支持的配置文件路径：labzen.yml、labzen.yaml、META-INF/labzen.yml、META-INF/labzen.yaml。
+ * 解析后的配置项以点分隔的路径形式存储，支持嵌套结构展开。
+ */
 public class YamlConfigurationFileResolver implements ConfigurationFileResolver {
 
   private final Logger logger = LoggerFactory.getLogger(YamlConfigurationFileResolver.class);
@@ -20,6 +27,13 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
       "classpath:META-INF/labzen.yml",
       "classpath:META-INF/labzen.yaml");
 
+  /**
+   * 解析YAML配置文件
+   * <p>
+   * 按优先级查找配置文件，找到第一个存在的文件后读取并解析为Map结构。
+   *
+   * @return 配置项Map，键为点分隔路径，值为配置值。若无配置文件则返回空Map。
+   */
   @Override
   public Map<String, Object> resolve() {
     PathMatchingResourcePatternResolver pathResolver = new PathMatchingResourcePatternResolver();
@@ -62,6 +76,11 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
   /**
    * from spring class: {@link YamlProcessor}
    */
+  /**
+   * 将YAML对象转换为Map结构
+   * <p>
+   * 递归处理嵌套的Map和Collection类型。
+   */
   private Map<String, Object> asMap(Object object) {
     // YAML can have numbers as keys
     Map<String, Object> result = new LinkedHashMap<>();
@@ -82,6 +101,12 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
     return result;
   }
 
+  /**
+   * 构建扁平化的配置Map
+   * <p>
+   * 将嵌套的YAML结构展开为点分隔路径的形式。
+   * List类型展开为索引形式（path.0, path.1），Map类型递归展开。
+   */
   @SuppressWarnings("unchecked")
   private void buildFlattenedMap(Map<String, Object> result, Map<String, Object> source, String path) {
     source.forEach((key, value) -> {

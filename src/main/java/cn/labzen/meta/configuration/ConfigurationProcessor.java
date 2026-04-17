@@ -19,15 +19,36 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * 配置处理器
+ * <p>
+ * 负责加载YAML配置文件、解析配置接口、创建动态代理。
+ * 使用Javassist库创建配置接口的代理实现，通过{@link ConfigurationMethodHandler}拦截方法调用，
+ * 实现从配置文件中读取值并自动类型转换的功能。
+ *
+ * @see ConfigurationMethodHandler
+ * @see ConfigurationFileResolver
+ */
 public final class ConfigurationProcessor {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationProcessor.class);
 
+  /**
+   * 配置接口代理实例对象缓存
+   */
   private static final Map<Class<?>, Object> PROXIES = new ConcurrentHashMap<>();
 
   private ConfigurationProcessor() {
   }
 
+  /**
+   * 读取并加载所有配置文件
+   * <p>
+   * 通过ServiceLoader加载所有{@link ConfigurationFileResolver}实现，
+   * 执行配置解析并将结果存入全局配置属性Map。
+   *
+   * @throws ServiceConfigurationError 若配置解析失败
+   */
   public static void readConfigurations() throws ServiceConfigurationError {
     ServiceLoader<ConfigurationFileResolver> loaded = ServiceLoader.load(ConfigurationFileResolver.class);
 
@@ -41,6 +62,12 @@ public final class ConfigurationProcessor {
     }
   }
 
+  /**
+   * 扫描并解析所有组件中的配置接口
+   * <p>
+   * 根据已加载组件的包路径，使用Reflections库扫描所有标注了@Configured注解的接口，
+   * 为每个接口创建动态代理实例并缓存。
+   */
   public static void readComponentInterfaces() {
     String[] packages = Labzens.getComponentMetas()
                                .values()
@@ -62,6 +89,16 @@ public final class ConfigurationProcessor {
     configuredInterfaces.forEach(ConfigurationProcessor::parseInterface);
   }
 
+  /**
+   * 获取配置接口的代理实例
+   * <p>
+   * 从缓存中获取已创建的代理实例，若不存在则抛出异常。
+   *
+   * @param interfaceClass 配置接口类型
+   * @param <CI> 泛型接口类型
+   * @return 配置接口的代理实例
+   * @throws IllegalStateException 若接口未被正确配置
+   */
   @SuppressWarnings("unchecked")
   public static <CI> CI getInterfaceProxy(Class<CI> interfaceClass) {
     if (!PROXIES.containsKey(interfaceClass)) {
@@ -71,6 +108,13 @@ public final class ConfigurationProcessor {
     return (CI) PROXIES.get(interfaceClass);
   }
 
+  /**
+   * 解析配置接口
+   * <p>
+   * 提取接口中所有方法的配置元数据，创建代理对象并缓存。
+   *
+   * @param configuredInterface 配置接口类型
+   */
   private static void parseInterface(Class<?> configuredInterface) {
     if (!configuredInterface.isInterface()) {
       throw new IllegalArgumentException("Labzen组件的配置必须为接口");
@@ -87,6 +131,15 @@ public final class ConfigurationProcessor {
     PROXIES.put(configuredInterface, proxy);
   }
 
+  /**
+   * 解析配置方法
+   * <p>
+   * 从方法注解和名称中提取配置路径、是否必填、默认值等信息。
+   * 配置路径默认从方法名转换而来（驼峰转横线分隔），如getMyValue转为my-value。
+   *
+   * @param method 配置方法
+   * @return 方法的配置元数据
+   */
   private static Meta parseMethod(Method method) {
     Item annotation = method.getAnnotation(Item.class);
 
@@ -114,6 +167,16 @@ public final class ConfigurationProcessor {
     return new Meta(method, method.getReturnType(), path, required, loglevel, defaultValue);
   }
 
+  /**
+   * 创建配置接口的动态代理实例
+   * <p>
+   * 使用Javassist的ProxyFactory创建代理类，设置方法处理器拦截所有接口方法的调用。
+   *
+   * @param configuredInterface 配置接口类型
+   * @param namespace 配置命名空间
+   * @param metas 方法与配置元数据的映射
+   * @return 配置接口的代理实例
+   */
   private static Object createConfigurationProxy(Class<?> configuredInterface,
                                                  String namespace,
                                                  Map<Method, Meta> metas) {

@@ -4,6 +4,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 全局配置属性存储
+ * <p>
+ * 作为配置属性的中央缓存，存储所有从YAML文件加载的配置项。
+ * 使用ConcurrentHashMap保证线程安全，支持并发读写。
+ */
 final class ConfigurationProperties {
 
   static final Map<String, Object> PROPERTIES = new ConcurrentHashMap<>();

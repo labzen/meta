@@ -1,9 +1,11 @@
 package cn.labzen.meta.spring;
 
 /**
- * 定义不同模块使用 spring.factories 文件中定义 ApplicationContextInitializer 时的默认顺序
- * 顺序仅供参考，后续模块的实际加载顺序可能有变
- * todo delete
+ * Spring初始化顺序常量定义
+ * <p>
+ * 定义不同模块使用spring.factories文件中ApplicationContextInitializer时的默认顺序。
+ * 顺序值从Integer.MIN_VALUE开始递增，确保元数据模块最早初始化。
+ * 注意：实际加载顺序可能因模块依赖关系而有所调整。
  */
 public interface SpringInitializationOrder {
 
