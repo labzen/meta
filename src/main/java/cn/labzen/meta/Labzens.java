@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,10 +50,11 @@ public final class Labzens {
       LOGGER.warn("ComponentMeta 的 title 为空，已忽略");
       return;
     }
-    if (componentMetas.containsKey(title)) {
-      LOGGER.warn("检测到重复的组件标题: {}", title);
+
+    ComponentMeta existing = componentMetas.putIfAbsent(title, componentMeta);
+    if (existing != null) {
+      LOGGER.warn("检测到重复的组件标题: {}，已忽略后续注册", title);
     }
-    componentMetas.put(componentMeta.information().title(), componentMeta);
   }
 
   /**
@@ -73,7 +73,7 @@ public final class Labzens {
    * @return 不可变的组件元数据Map，键为组件标题
    */
   public static Map<String, ComponentMeta> getComponentMetas() {
-    return Collections.unmodifiableMap(componentMetas);
+    return Map.copyOf(componentMetas);
   }
 
   /**

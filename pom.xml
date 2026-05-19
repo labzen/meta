@@ -79,7 +79,6 @@
       <artifactId>maven-model</artifactId>
     </dependency>
 
-    <!--suppress VulnerableLibrariesLocal -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>

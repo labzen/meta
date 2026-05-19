@@ -63,7 +63,9 @@ public class LabzenMetaInitializer implements ApplicationContextInitializer<Conf
         Information information = manifest.determine();
 
         ComponentMeta componentMeta = new ComponentMeta(information, component);
-        assert information != null;
+        if (information == null) {
+          throw new IllegalStateException("Labzen组件信息不能为空: " + component.getClass().getName());
+        }
         Labzens.addComponentMeta(componentMeta);
       } catch (Exception e) {
         logger.error("加载Labzen组件 [{}] 失败，跳过", component.getClass().getName(), e);

@@ -37,10 +37,10 @@ public final class ConfigurationMethodHandler implements MethodHandler {
    * 根据调用方法确定配置路径，从全局配置中读取值并进行类型转换。
    * 支持toString、hashCode、equals等Object方法的特殊处理。
    *
-   * @param self    代理对象本身
+   * @param self       代理对象本身
    * @param thisMethod 被调用的方法
-   * @param proceed  proceed参数在此实现中未使用
-   * @param args 方法参数
+   * @param proceed    proceed参数在此实现中未使用
+   * @param args       方法参数
    * @return 方法返回值
    * @throws Throwable 若配置读取或类型转换失败
    */
@@ -110,7 +110,7 @@ public final class ConfigurationMethodHandler implements MethodHandler {
    * 从配置属性Map中读取索引递增的配置项（path.0, path.1, ...），
    * 将每一项转换为List元素类型。若配置为空则使用默认值或返回空List。
    *
-   * @param meta 配置元数据
+   * @param meta     配置元数据
    * @param basePath 配置路径前缀
    * @return 配置值列表
    */
@@ -155,7 +155,7 @@ public final class ConfigurationMethodHandler implements MethodHandler {
    * 从配置属性Map中筛选出以path.为前缀的项作为Map的键值对，
    * 将每个值转换为Map元素类型。若配置为空则使用默认值或返回空Map。
    *
-   * @param meta 配置元数据
+   * @param meta     配置元数据
    * @param basePath 配置路径前缀
    * @return 配置值Map
    */
@@ -180,7 +180,8 @@ public final class ConfigurationMethodHandler implements MethodHandler {
         map = Arrays.stream(defaultValue.split(","))
                     .map(o -> o.split("="))
                     .filter(chips -> chips.length == 2)
-                    .collect(Collectors.toUnmodifiableMap(chips -> chips[0], chips -> chips[1]));
+                    .collect(Collectors.toUnmodifiableMap(chips -> chips[0],
+                        chips -> convertType(basePath, chips[1], itemClass)));
       } else {
         map = Map.of();
       }
@@ -199,7 +200,9 @@ public final class ConfigurationMethodHandler implements MethodHandler {
    */
   private Class<?> getGenericType(Type type) {
     if (!(type instanceof ParameterizedType parameterizedType)) {
-      throw new IllegalStateException();
+      throw new IllegalStateException("配置方法的返回类型必须带有泛型参数，当前类型: " +
+                                      type +
+                                      "，请使用如 List<String> 而非裸 List");
     }
 
     // 获取原始类型

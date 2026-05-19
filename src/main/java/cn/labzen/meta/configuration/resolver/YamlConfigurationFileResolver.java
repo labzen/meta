@@ -2,10 +2,11 @@ package cn.labzen.meta.configuration.resolver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.YamlProcessor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,7 +65,10 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
   }
 
   private Map<String, Object> loadYamlAsMap(InputStream inputStream) {
-    Yaml yaml = new Yaml();
+    LoaderOptions options = new LoaderOptions();
+    options.setAllowDuplicateKeys(false);
+    options.setAllowDuplicateKeys(true);
+    Yaml yaml = new Yaml(new SafeConstructor(options));
     Object loaded = yaml.load(inputStream);
     Map<String, Object> loadedMap = asMap(loaded);
 
@@ -73,9 +77,6 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
     return result;
   }
 
-  /**
-   * from spring class: {@link YamlProcessor}
-   */
   /**
    * 将YAML对象转换为Map结构
    * <p>

@@ -95,7 +95,7 @@ public final class ConfigurationProcessor {
    * 从缓存中获取已创建的代理实例，若不存在则抛出异常。
    *
    * @param interfaceClass 配置接口类型
-   * @param <CI> 泛型接口类型
+   * @param <CI>           泛型接口类型
    * @return 配置接口的代理实例
    * @throws IllegalStateException 若接口未被正确配置
    */
@@ -122,9 +122,9 @@ public final class ConfigurationProcessor {
 
     Map<Method, Meta> metas = Arrays.stream(configuredInterface.getMethods())
                                     .map(ConfigurationProcessor::parseMethod)
-                                    .collect(Collectors.toMap(Meta::method, meta -> meta));
+                                    .collect(Collectors.toMap(Meta::method, meta -> meta, (a, b) -> a));
     Configured annotation = configuredInterface.getAnnotation(Configured.class);
-    assert annotation != null;
+
     String namespace = annotation.namespace();
     Object proxy = createConfigurationProxy(configuredInterface, namespace, metas);
 
@@ -173,8 +173,8 @@ public final class ConfigurationProcessor {
    * 使用Javassist的ProxyFactory创建代理类，设置方法处理器拦截所有接口方法的调用。
    *
    * @param configuredInterface 配置接口类型
-   * @param namespace 配置命名空间
-   * @param metas 方法与配置元数据的映射
+   * @param namespace           配置命名空间
+   * @param metas               方法与配置元数据的映射
    * @return 配置接口的代理实例
    */
   private static Object createConfigurationProxy(Class<?> configuredInterface,

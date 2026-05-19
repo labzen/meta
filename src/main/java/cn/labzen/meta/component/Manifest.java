@@ -48,9 +48,11 @@ public class Manifest {
     CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
 
     Information information;
-    information = fromCodeSource(codeSource);
-    if (information != null) {
-      return information;
+    if (codeSource != null) {
+      information = fromCodeSource(codeSource);
+      if (information != null) {
+        return information;
+      }
     }
     information = fromMaven();
     if (information != null) {
@@ -99,7 +101,7 @@ public class Manifest {
   }
 
   /**
-   * 从pom.xml读取组件信息
+   * 从当前开发的项目中pom.xml读取组件信息
    * <p>
    * 解析项目根目录下的pom.xml文件，提取项目名称、组织/开发者信息和版本号。
    *

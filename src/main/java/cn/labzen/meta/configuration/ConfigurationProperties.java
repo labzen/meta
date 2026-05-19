@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 final class ConfigurationProperties {
 
-  static final Map<String, Object> PROPERTIES = new ConcurrentHashMap<>();
+  private static final Map<String, Object> PROPERTIES = new ConcurrentHashMap<>();
 
   private ConfigurationProperties() {
   }

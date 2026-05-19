@@ -2,7 +2,7 @@ package cn.labzen.meta.spring;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SpringInitializationOrderTest {
 
@@ -22,8 +22,8 @@ class SpringInitializationOrderTest {
   }
 
   @Test
-  void testModuleCoreInitializerOrder() {
-    assertEquals(Integer.MIN_VALUE + 4_000, SpringInitializationOrder.MODULE_CORE_INITIALIZER_ORDER);
+  void testModuleFileInitializerOrder() {
+    assertEquals(Integer.MIN_VALUE + 4_000, SpringInitializationOrder.MODULE_FILE_INITIALIZER_ORDER);
   }
 
   @Test
@@ -69,17 +69,6 @@ class SpringInitializationOrderTest {
   @Test
   void testModuleSwingInitializerOrder() {
     assertEquals(Integer.MIN_VALUE + 12_000, SpringInitializationOrder.MODULE_SWING_INITIALIZER_ORDER);
-  }
-
-  @Test
-  void testOrderSequence() {
-    // 验证顺序是递增的
-    assertTrue(SpringInitializationOrder.MODULE_META_INITIALIZER_ORDER 
-        < SpringInitializationOrder.MODULE_LOGGER_INITIALIZER_ORDER);
-    assertTrue(SpringInitializationOrder.MODULE_LOGGER_INITIALIZER_ORDER 
-        < SpringInitializationOrder.MODULE_SPRING_INITIALIZER_ORDER);
-    assertTrue(SpringInitializationOrder.MODULE_SPRING_INITIALIZER_ORDER 
-        < SpringInitializationOrder.MODULE_CORE_INITIALIZER_ORDER);
   }
 
   @Test

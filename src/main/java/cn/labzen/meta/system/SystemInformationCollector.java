@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 系统硬件信息收集器
@@ -25,7 +26,7 @@ public final class SystemInformationCollector {
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemInformationCollector.class);
   private static final SystemInformationCollector INSTANCE = new SystemInformationCollector();
 
-  private static boolean collected = false;
+  private static final AtomicBoolean COLLECTED = new AtomicBoolean(false);
 
   private final SystemInfo systemInfo = new SystemInfo();
   private final List<SystemInformation> infos = new ArrayList<>();
@@ -42,7 +43,7 @@ public final class SystemInformationCollector {
    * 信息收集完成后标记为已收集状态，防止重复收集。
    */
   public static void collect() {
-    if (collected) {
+    if (!COLLECTED.compareAndSet(false, true)) {
       LOGGER.warn("系统信息已收集，请勿重复收集");
       return;
     }
@@ -94,8 +95,6 @@ public final class SystemInformationCollector {
     } catch (Exception e) {
       LOGGER.error("收集网络信息失败", e);
     }
-
-    collected = true;
   }
 
   /**
@@ -264,6 +263,9 @@ public final class SystemInformationCollector {
   }
 
   private String calculateGB(Long bytes) {
+    if (bytes == null) {
+      return "0 GB";
+    }
     double result = ((double) bytes) / 1024 / 1024 / 1024;
     return decimalFormat.format(result) + " GB";
   }
