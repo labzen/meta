@@ -271,11 +271,17 @@ public final class SystemInformationCollector {
   }
 
   private String calculateHZ(Long bytes) {
+    if (bytes == null) {
+      return "0 GHz";
+    }
     double result = ((double) bytes) / 1000 / 1000 / 1000;
     return decimalFormat.format(result) + " GHz";
   }
 
   private String calculateMHZ(Long bytes) {
+    if (bytes == null) {
+      return "0 MHz";
+    }
     double result = ((double) bytes) / 1000 / 1000;
     return decimalFormat.format(result) + " MHz";
   }

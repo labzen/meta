@@ -28,7 +28,7 @@ import java.util.ServiceLoader;
  */
 public class LabzenMetaInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext>, Ordered {
 
-  private final Logger logger = LoggerFactory.getLogger(LabzenMetaInitializer.class);
+  private final Logger LOGGER = LoggerFactory.getLogger(LabzenMetaInitializer.class);
 
   @Override
   public void initialize(@Nonnull ConfigurableApplicationContext applicationContext) throws ServiceConfigurationError {
@@ -43,7 +43,7 @@ public class LabzenMetaInitializer implements ApplicationContextInitializer<Conf
       ConfigurationProcessor.readConfigurations();
       ConfigurationProcessor.readComponentInterfaces();
     } catch (Exception e) {
-      logger.error("读取Labzen配置或配置接口失败，可能会影响应用启动", e);
+      LOGGER.error("读取Labzen配置或配置接口失败，可能会影响应用启动", e);
     }
   }
 
@@ -62,13 +62,14 @@ public class LabzenMetaInitializer implements ApplicationContextInitializer<Conf
         Manifest manifest = new Manifest(component);
         Information information = manifest.determine();
 
-        ComponentMeta componentMeta = new ComponentMeta(information, component);
         if (information == null) {
           throw new IllegalStateException("Labzen组件信息不能为空: " + component.getClass().getName());
         }
+
+        ComponentMeta componentMeta = new ComponentMeta(information, component);
         Labzens.addComponentMeta(componentMeta);
       } catch (Exception e) {
-        logger.error("加载Labzen组件 [{}] 失败，跳过", component.getClass().getName(), e);
+        LOGGER.error("加载Labzen组件 [{}] 失败，跳过", component.getClass().getName(), e);
       }
     }
   }

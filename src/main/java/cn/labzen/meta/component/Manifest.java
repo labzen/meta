@@ -5,11 +5,11 @@ import org.apache.maven.model.Developer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
@@ -27,6 +27,7 @@ import java.util.jar.JarFile;
  */
 public class Manifest {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(Manifest.class);
   private final DeclaredComponent declaredComponent;
 
   public Manifest(DeclaredComponent declaredComponent) {
@@ -58,7 +59,11 @@ public class Manifest {
     if (information != null) {
       return information;
     }
-    information = fromPackage(clazz.getPackage());
+
+    Package pkg = clazz.getPackage();
+    if (pkg != null) {
+      information = fromPackage(pkg);
+    }
     return information;
   }
 
@@ -108,40 +113,57 @@ public class Manifest {
    * @return 组件信息，若文件不存在或解析失败则返回null
    */
   private Information fromMaven() {
-    MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
-    try (FileReader fileReader = new FileReader("pom.xml")) {
-      Model model = mavenXpp3Reader.read(fileReader);
-
-      String title = model.getName();
-      if (title == null || title.isEmpty()) {
-        title = model.getArtifactId();
-      }
-
-      String vendor = null;
-      if (model.getOrganization() != null) {
-        vendor = model.getOrganization().getName();
-      }
-      if (vendor == null || vendor.isEmpty()) {
-        List<Developer> developers = model.getDevelopers();
-        if (developers != null && !developers.isEmpty()) {
-          if (developers.getFirst() != null) {
-            vendor = developers.getFirst().getName();
-          }
+    // // 优先从 classpath 读取 Maven POM（生产环境）
+    try (InputStream is = getClass().getResourceAsStream("/META-INF/maven/cn.labzen/meta/pom.xml")) {
+      if (is != null) {
+        try (InputStreamReader reader = new InputStreamReader(is)) {
+          return fromInputStream(reader);
         }
       }
-      if (vendor == null) {
-        vendor = "";
-      }
-
-      String version = model.getVersion();
-      if (version == null) {
-        version = "";
-      }
-
-      return new Information(title, vendor, version, declaredComponent.description());
-    } catch (IOException | XmlPullParserException e) {
-      return null;
+    } catch (Exception e) {
+      LOGGER.debug("从 classpath 中读取 Maven POM 失败，将尝试从文件系统读取");
     }
+
+    try (FileReader reader = new FileReader("pom.xml")) {
+      return fromInputStream(reader);
+    } catch (IOException | XmlPullParserException e) {
+      LOGGER.debug("从文件系统中读取 Maven POM 失败");
+    }
+
+    return null;
+  }
+
+  private Information fromInputStream(InputStreamReader reader) throws IOException, XmlPullParserException {
+    MavenXpp3Reader mavenXpp3Reader = new MavenXpp3Reader();
+    Model model = mavenXpp3Reader.read(reader);
+
+    String title = model.getName();
+    if (title == null || title.isEmpty()) {
+      title = model.getArtifactId();
+    }
+
+    String vendor = null;
+    if (model.getOrganization() != null) {
+      vendor = model.getOrganization().getName();
+    }
+    if (vendor == null || vendor.isEmpty()) {
+      List<Developer> developers = model.getDevelopers();
+      if (developers != null && !developers.isEmpty()) {
+        if (developers.getFirst() != null) {
+          vendor = developers.getFirst().getName();
+        }
+      }
+    }
+    if (vendor == null) {
+      vendor = "";
+    }
+
+    String version = model.getVersion();
+    if (version == null) {
+      version = "";
+    }
+
+    return new Information(title, vendor, version, declaredComponent.description());
   }
 
   /**

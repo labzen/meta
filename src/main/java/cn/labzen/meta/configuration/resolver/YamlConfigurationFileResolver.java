@@ -21,7 +21,7 @@ import java.util.*;
  */
 public class YamlConfigurationFileResolver implements ConfigurationFileResolver {
 
-  private final Logger logger = LoggerFactory.getLogger(YamlConfigurationFileResolver.class);
+  private final Logger LOGGER = LoggerFactory.getLogger(YamlConfigurationFileResolver.class);
 
   private static final List<String> CONFIG_FILE_LOCATIONS = List.of("classpath:labzen.yml",
       "classpath:labzen.yaml",
@@ -43,7 +43,7 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
     for (String location : CONFIG_FILE_LOCATIONS) {
       resource = pathResolver.getResource(location);
       if (resource.exists()) {
-        logger.info("加载Labzen配置文件： {}", resource.getFilename());
+        LOGGER.info("加载Labzen配置文件： {}", resource.getFilename());
         break;
       }
       resource = null;
@@ -56,10 +56,10 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
     try (InputStream inputStream = resource.getInputStream()) {
       return loadYamlAsMap(inputStream);
     } catch (IOException e) {
-      logger.error("无法读取配置文件", e);
+      LOGGER.error("无法读取配置文件", e);
       return Map.of();
     } catch (Exception e) {
-      logger.error("配置文件格式错误或解析失败", e);
+      LOGGER.error("配置文件格式错误或解析失败", e);
       return Map.of();
     }
   }
@@ -67,7 +67,6 @@ public class YamlConfigurationFileResolver implements ConfigurationFileResolver 
   private Map<String, Object> loadYamlAsMap(InputStream inputStream) {
     LoaderOptions options = new LoaderOptions();
     options.setAllowDuplicateKeys(false);
-    options.setAllowDuplicateKeys(true);
     Yaml yaml = new Yaml(new SafeConstructor(options));
     Object loaded = yaml.load(inputStream);
     Map<String, Object> loadedMap = asMap(loaded);
